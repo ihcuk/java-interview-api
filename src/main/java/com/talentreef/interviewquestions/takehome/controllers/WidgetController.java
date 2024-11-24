@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,14 +17,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequestMapping(value= "/v1/widgets", produces = MediaType.APPLICATION_JSON_VALUE)
+@CrossOrigin(origins = "http://localhost:3000")
+@Validated
 public class WidgetController {
 
   private final WidgetService widgetService;
@@ -33,11 +38,15 @@ public class WidgetController {
     this.widgetService = widgetService;
   }
 
-  // 1. Create new widgets
   @PostMapping
-  public ResponseEntity<List<Widget>> createWidgets(@RequestBody List<Widget> widgets) {
+  public ResponseEntity<List<Widget>> createWidgets(@Valid @RequestBody Widget widget) {
+    return createWidgets(List.of(widget));
+  }
+
+  @PostMapping("/bulk")
+  public ResponseEntity<List<Widget>> createWidgets(@Valid @RequestBody List<Widget> widgetList) {
     try {
-      List<Widget> createdWidgets = widgetService.createWidgets(widgets);
+      List<Widget> createdWidgets = widgetService.createWidgets(widgetList);
       return new ResponseEntity<>(createdWidgets, HttpStatus.CREATED);
     } catch (Exception e) {
       log.error("Error creating widgets: {}", e.getMessage());
@@ -45,7 +54,6 @@ public class WidgetController {
     }
   }
 
-  // 2. Get all widgets
   @GetMapping
   public ResponseEntity<List<Widget>> getAllWidgets() {
     try {
@@ -57,7 +65,7 @@ public class WidgetController {
     }
   }
 
-  // 3. Get a widget by name
+
   @GetMapping("/{name}")
   public ResponseEntity<Widget> getWidgetByName(@PathVariable String name) {
     try {
@@ -70,7 +78,6 @@ public class WidgetController {
     }
   }
 
-  // 4. Update a widget's description or price
   @PutMapping("/{name}")
   public ResponseEntity<Widget> updateWidget(@PathVariable String name,
                                              @RequestParam(required = false) String description,
@@ -85,7 +92,6 @@ public class WidgetController {
     }
   }
 
-  // 5. Delete a widget by name
   @DeleteMapping("/{name}")
   public ResponseEntity<Void> deleteWidget(@PathVariable String name) {
     try {

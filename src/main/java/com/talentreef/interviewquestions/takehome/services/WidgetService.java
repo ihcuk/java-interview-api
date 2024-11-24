@@ -22,30 +22,24 @@ public class WidgetService {
     this.widgetRepository = widgetRepository;
   }
 
-  // 1. Retrieve all widgets
   public List<Widget> getAllWidgets() {
     return widgetRepository.findAll();
   }
 
-  // 2. Create new widgets
   public List<Widget> createWidgets(List<Widget> widgets) {
     return widgetRepository.saveAll(widgets);
   }
 
-  // 3. Retrieve a widget by name
   public Optional<Widget> getWidgetByName(String name) {
     return widgetRepository.findById(name);
   }
 
-  // 4. Update a widget's description or price
   public Optional<Widget> updateWidget(String name, String description, Double price) {
     return widgetRepository.update(name, description, price);
   }
 
-  // 5. Delete a widget by name
   public boolean deleteWidget(String name) {
     List<Widget> remainingWidgets = widgetRepository.deleteById(name);
-    // Return true if the widget list size is smaller after deletion
     return remainingWidgets.size() < widgetRepository.findAll().size();
   }
 
